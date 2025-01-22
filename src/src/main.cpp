@@ -8,14 +8,9 @@ void createPath(const QVector<QString> &pathList)
   {
     path = QDir::currentPath() + "/" + path;
 
-    if(!QDir(path).exists())
+    if(!QDir(path).exists() && !QDir(path).mkdir(path))
     {
-      const bool success = QDir(path).mkdir(path);
-
-      if (!success)
-      {
-        qDebug() << "Failed to create directory: " << path;
-      }
+      qDebug() << "Failed to create directory: " << path;
     }
   }
 }
@@ -29,12 +24,9 @@ void setPath()
   path.append("/.config/");
   path.append(PROJECT_NAME);
 
-  if(!QDir(path).exists())
+  if(!QDir(path).exists() && !QDir(path).mkdir(path))
   {
-    if (!QDir(path).mkdir(path))
-    {
-      qDebug() << "Failed to create directory: " << path;
-    }
+    qDebug() << "Failed to create directory: " << path;
   }
 
   QDir::setCurrent(path);
