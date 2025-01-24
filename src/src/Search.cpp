@@ -3,7 +3,7 @@
 #include <QDirIterator>
 #include <QRegularExpressionMatchIterator>
 
-Search::Search(const QString &includeFile, const QString &excludeFile)
+Search::Search(QObject *parent, const QString &includeFile, const QString &excludeFile) : QObject(parent)
 {
   if (includeFile == nullptr)
   {
@@ -17,6 +17,11 @@ Search::Search(const QString &includeFile, const QString &excludeFile)
   }
 
   m_includeFile.setFileName(includeFile);
+
+}
+
+Search::~Search()
+{
 
 }
 
@@ -60,25 +65,14 @@ void Search::search()
 
   files = filter(files);
 
-  if (files.isEmpty())
-  {
-    qDebug() << "\033[31m" << "Not find!" << "\033[0m";
-    exit(1);
-  }
-
-  for (const auto &file : files)
-  {
-    qDebug() << "Find:" << file;
-  }
-
-  exit(0);
+  emit searchFinished(!files.isEmpty(), files);
 }
 
-QStringList Search::filter(const QStringList inputData)
+QStringList Search::filter(const QStringList &inputData)
 {
   QString ignorePattern;
 
-  if (m_excludeFile.open(QIODevice::ReadOnly | QIODevice::Text))
+  if (m_excludeFile.exists() && m_excludeFile.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     while (!m_excludeFile.atEnd())
     {
@@ -87,8 +81,8 @@ QStringList Search::filter(const QStringList inputData)
 
       if (!ignore.isEmpty())
       {
-        ignorePattern += "(" + ignore + ")|";
-        qDebug() << "\033[33m" <<"Exclude path:" << QString::fromUtf8(ignore) << "\033[0m";
+        ignorePattern += ignore + "|";
+        qDebug() << "\033[33m" << "Exclude path:" << QString::fromUtf8(ignore) << "\033[0m";
       }
     }
 
@@ -96,6 +90,7 @@ QStringList Search::filter(const QStringList inputData)
 
     if (ignorePattern.isEmpty())
     {
+      qDebug() << "\033[31m" <<  "Ignore pattern is empty!" << "\033[0m";
       return inputData;
     }
 
@@ -103,6 +98,7 @@ QStringList Search::filter(const QStringList inputData)
   }
   else
   {
+    qDebug() << "\033[31m" <<  "Ignore pattern is not recognize!" << "\033[0m";
     return inputData;
   }
 
@@ -111,9 +107,8 @@ QStringList Search::filter(const QStringList inputData)
   for (auto &line : inputData)
   {
     static QRegularExpression re(ignorePattern);
-    QRegularExpressionMatchIterator i = re.globalMatch(line);
 
-    if (!i.hasNext())
+    if (QRegularExpressionMatchIterator i = re.globalMatch(line); !i.hasNext())
     {
       filteredList.append(line);
     }
