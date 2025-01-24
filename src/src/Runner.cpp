@@ -14,7 +14,7 @@ Runner::~Runner()
 
 void Runner::start()
 {
-  if (QCoreApplication::arguments().count() < 3)
+  if (QCoreApplication::arguments().count() < 2)
   {
     qDebug() << "\033[31m" << "Unknown command" << "\033[0m";
     exit(1);
@@ -39,8 +39,18 @@ void Runner::start()
 
 void Runner::search()
 {
-  const QString includeFile(QCoreApplication::arguments().at(2));
+  QString includeFile = nullptr;
   QString excludeFile = nullptr;
+
+  if (QCoreApplication::arguments().count() >= 3)
+  {
+    includeFile = QCoreApplication::arguments().at(2);
+  }
+  else
+  {
+    qDebug() << "\033[31m" << "No required parameter: INCLUDE_FILE" << "\033[0m";
+    exit(1);
+  }
 
   if (QCoreApplication::arguments().count() >= 4)
   {
@@ -54,7 +64,10 @@ void Runner::search()
 
 void Runner::pack()
 {
+  m_pack = m_pack.create(this);
 
+  quint8 level = 9;
+  const QString includeFile(QCoreApplication::arguments().at(2));
 }
 
 void Runner::searchFinished(bool success, QStringList files)

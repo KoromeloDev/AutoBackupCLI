@@ -27,10 +27,10 @@ Search::~Search()
 
 void Search::search()
 {
-  if (!m_includeFile.open(QIODevice::ReadOnly | QIODevice::Text))
+  if (!m_includeFile.exists() || !m_includeFile.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-    qDebug() << "Couldn't open the file:" << m_includeFile.fileName();
-    return;
+    qDebug() << "\033[31m" << "Include file does not exist or not readable:" << m_includeFile.fileName() << "\033[0m";
+    exit(1);
   }
 
   QStringList pathList;
@@ -98,7 +98,7 @@ QStringList Search::filter(const QStringList &inputData)
   }
   else
   {
-    qDebug() << "\033[31m" <<  "Ignore pattern is not recognize!" << "\033[0m";
+    qDebug() << "\033[33m" <<  "Ignore pattern is not recognize!" << "\033[0m";
     return inputData;
   }
 

@@ -2,6 +2,7 @@
 #define RUNNER_H
 
 #include "Search.h"
+#include "Pack.h"
 
 #include <QObject>
 #include <QSharedPointer>
@@ -13,10 +14,12 @@ Q_OBJECT
 public:
   explicit Runner(QObject *parent = nullptr);
   ~Runner();
+
   void start();
 
 private:
   QSharedPointer<Search> m_search;
+  QSharedPointer<Pack> m_pack;
 
   void search();
   void pack();
