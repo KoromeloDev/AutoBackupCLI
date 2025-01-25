@@ -27,7 +27,7 @@ private:
   void pack(QStringList files = {});
   void load();
 
-public slots:
+private slots:
   static void searchFinished(bool success, QStringList files);
   static void packageFinished(bool success, QString path);
   static void loadingFinished(bool success);

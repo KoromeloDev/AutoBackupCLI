@@ -9,12 +9,6 @@ Pack::Pack(QObject *parent, quint8 level, QStringList files) : QObject(parent)
 {
   m_level = level > 9 ? 9 : level;
 
-  if (files.isEmpty())
-  {
-    qDebug() << "\033[31m" << "No required files" << "\033[0m";
-    emit packageFinished(false, "");
-  }
-
   for (auto &file : files)
   {
     if (QFile::exists(file))
@@ -35,6 +29,12 @@ Pack::~Pack()
 
 void Pack::pack(QString name)
 {
+  if (m_files.isEmpty())
+  {
+    qDebug() << "\033[31m" << "No required files" << "\033[0m";
+    emit packageFinished(false, "");
+  }
+
   const QDateTime currentDate = QDateTime::currentDateTime();
   const QString currentDateString = currentDate.toString("dd.MM.yyyy HH-mm");
   QString archiveName = name + currentDateString + ".tar";
@@ -54,9 +54,8 @@ void Pack::pack(QString name)
   process.waitForFinished();
   QString command = QString("gzip -%1 %2").arg(QString::number(m_level), archiveName);
   process.startCommand(command);
-  quint8 exitCode = process.exitCode();
   process.waitForFinished();
-  emit packageFinished(!exitCode, archiveName + ".gz");
+  emit packageFinished(!process.exitCode(), archiveName + ".gz");
 }
 
 bool Pack::remove(QString path)
