@@ -20,15 +20,17 @@ void Runner::start()
     exit(1);
   }
 
-  const QString command = QCoreApplication::arguments().at(1);
-
-  if (command == "search")
+  if (const QString command = QCoreApplication::arguments().at(1); command == "search")
   {
     search();
   }
   else if (command == "pack")
   {
     pack();
+  }
+  else if (command == "load")
+  {
+    load();
   }
   else
   {
@@ -39,7 +41,7 @@ void Runner::start()
 
 void Runner::search()
 {
-  QString includeFile = includeFile = QCoreApplication::arguments().at(2);
+  QString includeFile = QCoreApplication::arguments().at(2);
   QString excludeFile = nullptr;
 
   if (QCoreApplication::arguments().count() >= 4)
@@ -77,6 +79,28 @@ void Runner::pack(QStringList files)
   m_pack->pack("Config ");
 }
 
+void Runner::load()
+{
+  if (QCoreApplication::arguments().count() == 3)
+  {
+    qDebug() << "\033[31m" << "No required parameter: FILE" << "\033[0m";
+    exit(1);
+  }
+
+  const QString configName = QCoreApplication::arguments().at(2);
+  const QString file = QCoreApplication::arguments().at(3);
+  QString path = "/";
+
+  if (QCoreApplication::arguments().count() >= 5)
+  {
+    path = QCoreApplication::arguments().at(4);
+  }
+
+  m_loader = m_loader.create(this, configName, file , path);
+  connect(m_loader.get(), &Loader::loadingFinished, this, &Runner::loadingFinished);
+  m_loader->load();
+}
+
 void Runner::searchFinished(bool success, QStringList files)
 {
   if (success)
@@ -102,5 +126,17 @@ void Runner::packageFinished(bool success, QString path)
   }
 
   qDebug() << "\033[31m" << "Error packing!" << "\033[0m";
+  exit(1);
+}
+
+void Runner::loadingFinished(bool success)
+{
+  if (success)
+  {
+    qDebug() << "\033[32m" << "Loaded" << "\033[0m";
+    exit(0);
+  }
+
+  qDebug() << "\033[31m" << "Error loading!" << "\033[0m";
   exit(1);
 }

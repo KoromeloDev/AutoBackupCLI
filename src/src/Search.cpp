@@ -11,7 +11,6 @@ Search::Search(QObject *parent, const QString &includeFile, const QString &exclu
   }
 
   m_includeFile.setFileName(includeFile);
-
 }
 
 Search::~Search()
@@ -24,7 +23,7 @@ void Search::search()
   if (!m_includeFile.exists() || !m_includeFile.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     qDebug() << "\033[31m" << "Include file does not exist or not readable:" << m_includeFile.fileName() << "\033[0m";
-    exit(1);
+    emit searchFinished(false, {});
   }
 
   QStringList pathList;

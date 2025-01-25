@@ -1,5 +1,4 @@
 #include <QCoreApplication>
-#include <QDir>
 
 #include "Runner.h"
 

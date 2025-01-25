@@ -12,7 +12,7 @@ Pack::Pack(QObject *parent, quint8 level, QStringList files) : QObject(parent)
   if (files.isEmpty())
   {
     qDebug() << "\033[31m" << "No required files" << "\033[0m";
-    exit(1);
+    emit packageFinished(false, "");
   }
 
   for (auto &file : files)
