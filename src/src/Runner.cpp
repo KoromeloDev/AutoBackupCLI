@@ -14,7 +14,7 @@ Runner::~Runner()
 
 void Runner::start()
 {
-  if (QCoreApplication::arguments().count() < 2)
+  if (QCoreApplication::arguments().count() < 3)
   {
     qDebug() << "\033[31m" << "Unknown command" << "\033[0m";
     exit(1);
@@ -39,18 +39,8 @@ void Runner::start()
 
 void Runner::search()
 {
-  QString includeFile = nullptr;
+  QString includeFile = includeFile = QCoreApplication::arguments().at(2);
   QString excludeFile = nullptr;
-
-  if (QCoreApplication::arguments().count() >= 3)
-  {
-    includeFile = QCoreApplication::arguments().at(2);
-  }
-  else
-  {
-    qDebug() << "\033[31m" << "No required parameter: INCLUDE_FILE" << "\033[0m";
-    exit(1);
-  }
 
   if (QCoreApplication::arguments().count() >= 4)
   {
@@ -62,12 +52,29 @@ void Runner::search()
   m_search->search();
 }
 
-void Runner::pack()
+void Runner::pack(QStringList files)
 {
-  m_pack = m_pack.create(this);
+  quint8 level = QCoreApplication::arguments().at(2).toInt();
 
-  quint8 level = 9;
-  const QString includeFile(QCoreApplication::arguments().at(2));
+  if (files.isEmpty())
+  {
+    if (QCoreApplication::arguments().count() >= 4)
+    {
+      for (quint8 i = 3; i < QCoreApplication::arguments().count(); ++i)
+      {
+        files += QCoreApplication::arguments().at(i);
+      }
+    }
+    else
+    {
+      qDebug() << "\033[31m" << "No required parameter: FILES" << "\033[0m";
+      exit(1);
+    }
+  }
+
+  m_pack = m_pack.create(this, level, files);
+  connect(m_pack.get(), &Pack::packageFinished, this, &Runner::packageFinished);
+  m_pack->pack("Config ");
 }
 
 void Runner::searchFinished(bool success, QStringList files)
@@ -83,5 +90,17 @@ void Runner::searchFinished(bool success, QStringList files)
   }
 
   qDebug() << "\033[31m" << "Not find!" << "\033[0m";
+  exit(1);
+}
+
+void Runner::packageFinished(bool success, QString path)
+{
+  if (success)
+  {
+    qDebug() << "Path:" << path;
+    exit(0);
+  }
+
+  qDebug() << "\033[31m" << "Error packing!" << "\033[0m";
   exit(1);
 }

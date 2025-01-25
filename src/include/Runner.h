@@ -22,10 +22,11 @@ private:
   QSharedPointer<Pack> m_pack;
 
   void search();
-  void pack();
+  void pack(QStringList files = {});
 
 public slots:
   static void searchFinished(bool success, QStringList files);
+  static void packageFinished(bool success, QString path);
 };
 
 #endif //RUNNER_H

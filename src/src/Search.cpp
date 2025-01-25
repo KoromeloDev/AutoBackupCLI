@@ -5,12 +5,6 @@
 
 Search::Search(QObject *parent, const QString &includeFile, const QString &excludeFile) : QObject(parent)
 {
-  if (includeFile == nullptr)
-  {
-    qDebug() << "include file is null";
-    return;
-  }
-
   if (excludeFile != nullptr)
   {
     m_excludeFile.setFileName(excludeFile);
