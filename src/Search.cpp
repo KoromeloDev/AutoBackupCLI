@@ -1,4 +1,5 @@
 #include "Search.h"
+#include "Print.h"
 
 #include <QDirIterator>
 #include <QRegularExpressionMatchIterator>
@@ -22,8 +23,7 @@ void Search::search()
 {
   if (!m_includeFile.exists() || !m_includeFile.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-    qDebug() << "\033[31m" << "Include file does not exist or not readable:" << m_includeFile.fileName() << "\033[0m";
-    emit searchFinished(false, {});
+    Print::error("Include file does not exist or not readable: " + m_includeFile.fileName());
   }
 
   QStringList pathList;
@@ -44,7 +44,7 @@ void Search::search()
 
   for (const auto &path : pathList)
   {
-    qDebug() << "\033[34m" << "Include path:" << path << "\033[0m";
+    Print::info("Include path: " + path);
     QDirIterator it(path, QDir::AllEntries | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
 
     while (it.hasNext())
@@ -75,7 +75,7 @@ QStringList Search::filter(const QStringList &inputData)
       if (!ignore.isEmpty())
       {
         ignorePattern += ignore + "|";
-        qDebug() << "\033[33m" << "Exclude path:" << QString::fromUtf8(ignore) << "\033[0m";
+        Print::info("Exclude path: " + QString::fromUtf8(ignore));
       }
     }
 
@@ -83,7 +83,7 @@ QStringList Search::filter(const QStringList &inputData)
 
     if (ignorePattern.isEmpty())
     {
-      qDebug() << "\033[31m" <<  "Ignore pattern is empty!" << "\033[0m";
+      Print::warning("Ignore pattern is empty!");
       return inputData;
     }
 
@@ -91,7 +91,7 @@ QStringList Search::filter(const QStringList &inputData)
   }
   else
   {
-    qDebug() << "\033[33m" <<  "Ignore pattern is not recognize!" << "\033[0m";
+    Print::warning("Ignore pattern is not recognize!");
     return inputData;
   }
 

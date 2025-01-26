@@ -1,7 +1,7 @@
 #include "Loader.h"
+#include "Print.h"
 
 #include <QFile>
-#include <QDebug>
 #include <QProcess>
 
 Loader::Loader(QObject *parent, QString configName, QString file, QString path) : QObject(parent)
@@ -20,8 +20,7 @@ void Loader::load()
 {
   if (!QFile::exists(m_file))
   {
-    qDebug() << "\033[31m" << "File is not exist:" << m_file << "\033[0m";
-    emit loadingFinished(false);
+    Print::error("File is not exist: " + m_file);
   }
 
   QProcess process;

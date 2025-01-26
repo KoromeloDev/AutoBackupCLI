@@ -1,4 +1,5 @@
 #include "Packager.h"
+#include "Print.h"
 
 #include <QDateTime>
 #include <QDebug>
@@ -17,7 +18,7 @@ Packager::Packager(QObject *parent, quint8 level, QStringList files) : QObject(p
     }
     else
     {
-      qDebug() << "\033[31m" << "Non-existing file:" << file << "\033[0m";
+      Print::error("File is not exist: " + file);
     }
   }
 }
@@ -31,8 +32,7 @@ void Packager::pack(QString name)
 {
   if (m_files.isEmpty())
   {
-    qDebug() << "\033[31m" << "No required files" << "\033[0m";
-    emit packageFinished(false, "");
+    Print::error("No required files");
   }
 
   const QDateTime currentDate = QDateTime::currentDateTime();
@@ -55,17 +55,16 @@ bool Packager::remove(QString path)
 
   if (!file.exists())
   {
-    qDebug() << "\033[31m" << "File not exist:" << path << "\033[0m";
+    Print::error("File is not exist: " + path);
     return false;
   }
 
   if (file.remove())
   {
-    qDebug() << "\033[32m" << "The file has been successfully deleted:" << path << "\033[0m";
+    Print::success("The file has been successfully deleted: " + path);
     return true;
   }
 
-  qDebug() << "\033[31m" << "Failed to delete the file:" << path << "\033[0m";
+  Print::error("Failed to delete the file: " + path);
   return false;
-
 }

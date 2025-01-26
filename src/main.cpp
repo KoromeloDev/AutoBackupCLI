@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 
+#include "Print.h"
 #include "Runner.h"
 
 //Creates folders in the current directory
@@ -11,7 +12,7 @@ void createPath(const QVector<QString> &pathList)
 
     if(!QDir(path).exists() && !QDir(path).mkdir(path))
     {
-      qDebug() << "Failed to create directory: " << path;
+      Print::warning("Failed to create directory: " + path);
     }
   }
 }
@@ -20,14 +21,13 @@ void createPath(const QVector<QString> &pathList)
 void setPath()
 {
   QString path;
-
   path.append(QDir::homePath());
   path.append("/.config/");
   path.append(PROJECT_NAME);
 
   if(!QDir(path).exists() && !QDir(path).mkdir(path))
   {
-    qDebug() << "Failed to create directory: " << path;
+    Print::warning("Failed to create directory: " + path);
   }
 
   QDir::setCurrent(path);

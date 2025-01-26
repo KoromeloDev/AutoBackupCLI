@@ -1,4 +1,5 @@
 #include "Runner.h"
+#include "Print.h"
 
 #include <QCoreApplication>
 
@@ -16,8 +17,7 @@ void Runner::start()
 {
   if (QCoreApplication::arguments().count() < 3)
   {
-    qDebug() << "\033[31m" << "Unknown command" << "\033[0m";
-    exit(1);
+    Print::error("Unknown command");
   }
 
   if (const QString command = QCoreApplication::arguments().at(1); command == "search")
@@ -38,8 +38,7 @@ void Runner::start()
   }
   else
   {
-    qDebug() << "\033[31m" << "Unknown command:" << command << "\033[0m";
-    exit(1);
+    Print::error("Unknown command");
   }
 }
 
@@ -73,8 +72,7 @@ void Runner::pack(QStringList files)
     }
     else
     {
-      qDebug() << "\033[31m" << "No required parameter: FILES" << "\033[0m";
-      exit(1);
+      Print::error("No required parameter: FILES");
     }
   }
 
@@ -87,8 +85,7 @@ void Runner::load()
 {
   if (QCoreApplication::arguments().count() == 3)
   {
-    qDebug() << "\033[31m" << "No required parameter: FILE" << "\033[0m";
-    exit(1);
+    Print::error("No required parameter: FILES");
   }
 
   const QString configName = QCoreApplication::arguments().at(2);
@@ -119,48 +116,42 @@ void Runner::searchFinished(bool success, QStringList files)
   {
     for (const auto &file : files)
     {
-      qDebug() << "Find:" << file;
+      Print::info("Find: " + file);
     }
 
-    exit(0);
+    Print::success("Done!");
   }
 
-  qDebug() << "\033[31m" << "Not find!" << "\033[0m";
-  exit(1);
+  Print::error("Not find!");
 }
 
 void Runner::packageFinished(bool success, QString path)
 {
   if (success)
   {
-    qDebug() << "Path:" << path;
-    exit(0);
+    Print::info("Path: " + path);
+    Print::success("Done!");
   }
 
-  qDebug() << "\033[31m" << "Error packing!" << "\033[0m";
-  exit(1);
+  Print::error("Error packing!");
 }
 
 void Runner::loadingFinished(bool success)
 {
   if (success)
   {
-    qDebug() << "\033[32m" << "Loaded" << "\033[0m";
-    exit(0);
+    Print::success("Loaded!");
   }
 
-  qDebug() << "\033[31m" << "Error loading!" << "\033[0m";
-  exit(1);
+  Print::error("Error loading!");
 }
 
 void Runner::configFinished(bool success)
 {
   if (success)
   {
-    qDebug() << "\033[32m" << "Loaded" << "\033[0m";
-    exit(0);
+    Print::success("Done!");
   }
 
-  qDebug() << "\033[31m" << "Error creating configuration!" << "\033[0m";
-  exit(1);
+  Print::error("Error creating configuration!");
 }
