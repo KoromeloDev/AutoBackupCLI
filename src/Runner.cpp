@@ -32,6 +32,10 @@ void Runner::start()
   {
     load();
   }
+  else if (command == "config")
+  {
+    config();
+  }
   else
   {
     qDebug() << "\033[31m" << "Unknown command:" << command << "\033[0m";
@@ -56,7 +60,7 @@ void Runner::search()
 
 void Runner::pack(QStringList files)
 {
-  quint8 level = QCoreApplication::arguments().at(2).toInt();
+  quint8 level = QCoreApplication::arguments().at(2).toUInt();
 
   if (files.isEmpty())
   {
@@ -74,9 +78,9 @@ void Runner::pack(QStringList files)
     }
   }
 
-  m_pack = m_pack.create(this, level, files);
-  connect(m_pack.get(), &Pack::packageFinished, this, &Runner::packageFinished);
-  m_pack->pack("Config ");
+  m_packager = m_packager.create(this, level, files);
+  connect(m_packager.get(), &Packager::packageFinished, this, &Runner::packageFinished);
+  m_packager->pack("Config ");
 }
 
 void Runner::load()
@@ -99,6 +103,14 @@ void Runner::load()
   m_loader = m_loader.create(this, configName, file , path);
   connect(m_loader.get(), &Loader::loadingFinished, this, &Runner::loadingFinished);
   m_loader->load();
+}
+
+void Runner::config()
+{
+  QString configName = QCoreApplication::arguments().at(2);
+  m_configurator = m_configurator.create(this, configName);
+  connect(m_configurator.get(), &Configurator::configFinished, this, &Runner::configFinished);
+  m_configurator->config();
 }
 
 void Runner::searchFinished(bool success, QStringList files)
@@ -139,4 +151,14 @@ void Runner::loadingFinished(bool success)
 
   qDebug() << "\033[31m" << "Error loading!" << "\033[0m";
   exit(1);
+}
+
+void Runner::configFinished(bool success)
+{
+  if (!success)
+  {
+    qDebug() << "\033[31m" << "Error creating configuration!" << "\033[0m";
+  }
+
+  exit(!success);
 }

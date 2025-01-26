@@ -26,7 +26,7 @@ void Loader::load()
 
   QProcess process;
   QStringList args;
-  args << "sync" <<  m_file << m_configName + ":" + m_path;
+  args << "copy" <<  m_file << m_configName + ":" + m_path;
   process.start("rclone", args);
   qDebug() << "Start loading...";
   process.waitForFinished();

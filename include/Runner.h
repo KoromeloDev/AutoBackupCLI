@@ -2,8 +2,9 @@
 #define RUNNER_H
 
 #include "Search.h"
-#include "Pack.h"
+#include "Packager.h"
 #include "Loader.h"
+#include "Configurator.h"
 
 #include <QObject>
 #include <QSharedPointer>
@@ -20,17 +21,20 @@ public:
 
 private:
   QSharedPointer<Search> m_search;
-  QSharedPointer<Pack> m_pack;
+  QSharedPointer<Packager> m_packager;
   QSharedPointer<Loader> m_loader;
+  QSharedPointer<Configurator> m_configurator;
 
   void search();
   void pack(QStringList files = {});
   void load();
+  void config();
 
 private slots:
   static void searchFinished(bool success, QStringList files);
   static void packageFinished(bool success, QString path);
   static void loadingFinished(bool success);
+  static void configFinished(bool success);
 };
 
 #endif //RUNNER_H

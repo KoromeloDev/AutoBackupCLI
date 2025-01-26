@@ -1,15 +1,15 @@
-#ifndef PACK_H
-#define PACK_H
+#ifndef PACKAGER_H
+#define PACKAGER_H
 
 #include <QObject>
 
-class Pack : public QObject
+class Packager : public QObject
 {
 Q_OBJECT
 
 public:
-  explicit Pack(QObject *parent = nullptr, quint8 level = 9, QStringList files = {});
-  ~Pack();
+  explicit Packager(QObject *parent = nullptr, quint8 level = 9, QStringList files = {});
+  ~Packager();
 
   void pack(QString name);
   bool remove(QString path);
@@ -23,4 +23,4 @@ signals:
 
 };
 
-#endif //PACK_H
+#endif //PACKAGER_H

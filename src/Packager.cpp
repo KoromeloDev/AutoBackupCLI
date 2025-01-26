@@ -1,13 +1,13 @@
-#include "Pack.h"
+#include "Packager.h"
 
 #include <QDateTime>
 #include <QDebug>
 #include <QProcess>
 #include <QFile>
 
-Pack::Pack(QObject *parent, quint8 level, QStringList files) : QObject(parent)
+Packager::Packager(QObject *parent, quint8 level, QStringList files) : QObject(parent)
 {
-  m_level = level > 9 ? 9 : level;
+  m_level = level == 0 ? 1 : level > 9 ? 9 : level;
 
   for (auto &file : files)
   {
@@ -22,12 +22,12 @@ Pack::Pack(QObject *parent, quint8 level, QStringList files) : QObject(parent)
   }
 }
 
-Pack::~Pack()
+Packager::~Packager()
 {
 
 }
 
-void Pack::pack(QString name)
+void Packager::pack(QString name)
 {
   if (m_files.isEmpty())
   {
@@ -38,27 +38,18 @@ void Pack::pack(QString name)
   const QDateTime currentDate = QDateTime::currentDateTime();
   const QString currentDateString = currentDate.toString("dd.MM.yyyy HH-mm");
   QString archiveName = name + currentDateString + ".tar";
-
-  for (int i = 0; i < archiveName.length(); ++i)
-  {
-    if (archiveName[i] == ' ')
-    {
-      archiveName[i] = '_';
-    }
-  }
-
   QProcess process;
-  QStringList argument;
-  argument << "-czf" << archiveName << m_files;
-  process.start("tar", argument);
+  QStringList args;
+  args << "-czf" << archiveName << m_files;
+  process.start("tar", args);
   process.waitForFinished();
-  QString command = QString("gzip -%1 %2").arg(QString::number(m_level), archiveName);
+  const QString command = QString("gzip -%1 \"%2\"").arg(QString::number(m_level), archiveName);
   process.startCommand(command);
   process.waitForFinished();
   emit packageFinished(!process.exitCode(), archiveName + ".gz");
 }
 
-bool Pack::remove(QString path)
+bool Packager::remove(QString path)
 {
   QFile file(path);
 
