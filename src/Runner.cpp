@@ -155,10 +155,12 @@ void Runner::loadingFinished(bool success)
 
 void Runner::configFinished(bool success)
 {
-  if (!success)
+  if (success)
   {
-    qDebug() << "\033[31m" << "Error creating configuration!" << "\033[0m";
+    qDebug() << "\033[32m" << "Loaded" << "\033[0m";
+    exit(0);
   }
 
-  exit(!success);
+  qDebug() << "\033[31m" << "Error creating configuration!" << "\033[0m";
+  exit(1);
 }

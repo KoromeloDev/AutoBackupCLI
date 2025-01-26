@@ -1,5 +1,7 @@
 #ifndef CONFIGURATOR_H
-  #define CONFIGURATOR_H
+#define CONFIGURATOR_H
+
+#include "ConfFile.h"
 
 #include <QObject>
 
@@ -15,9 +17,14 @@ public:
 
 private:
   QString m_configName;
+  ConfFile m_conf;
 
 signals:
   void configFinished(bool success);
+
+private slots:
+  void configRemove();
+  void configCreate();
 };
 
 #endif //CONFIGURATOR_H
