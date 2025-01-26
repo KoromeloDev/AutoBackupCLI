@@ -45,7 +45,7 @@ void Search::search()
   for (const auto &path : pathList)
   {
     Print::info("Include path: " + path);
-    QDirIterator it(path, QDir::AllEntries | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+    QDirIterator it(path, QDir::AllEntries | QDir::Hidden | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
 
     while (it.hasNext())
     {
