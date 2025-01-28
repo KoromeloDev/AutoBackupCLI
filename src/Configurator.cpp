@@ -1,7 +1,6 @@
 #include "Configurator.h"
-
 #include "Print.h"
-#include <QFile>
+#include "Dir.h"
 
 Configurator::Configurator(QObject *parent, QString configName) : QObject(parent)
 {
@@ -42,6 +41,9 @@ void Configurator::configRemove()
 
 void Configurator::configCreate()
 {
+  QString folder = m_configName;
+  folder.chop(5);
+  Dir::create(folder);
   QTextStream input(stdin);
   Print::info("Creating a configuration");
   Print::info("Enter the name of the rclone configuration:");
@@ -51,17 +53,23 @@ void Configurator::configCreate()
   Print::info("Enter the include file path for search (By default creates a file in the conifguration folder):");
   m_conf.info.include = input.readLine();
 
-  if (!m_conf.info.include.isEmpty() && !QFile::exists(m_conf.info.include))
+  if (!m_conf.info.include.isEmpty() || !QFile::exists(m_conf.info.include))
   {
-    Print::warning("File is  exist: " + m_conf.info.include);
+    Print::warning("File is not exist: " + m_conf.info.include);
+    QString path = folder + "/" + folder + ".include";
+    createEmptyFile(path);
+    m_conf.info.include = path;
   }
 
   Print::info("Enter the exclude file path for search (By default creates a file in the conifguration folder):");
   m_conf.info.exclude = input.readLine();
 
-  if (!m_conf.info.exclude.isEmpty() && !QFile::exists(m_conf.info.exclude))
+  if (!m_conf.info.exclude.isEmpty() || !QFile::exists(m_conf.info.exclude))
   {
-    Print::warning("File is  exist: " + m_conf.info.include);
+    Print::warning("File is not exist: " + m_conf.info.exclude);
+    QString path = folder + "/" + folder + ".exclude";
+    createEmptyFile(path);
+    m_conf.info.exclude = path;
   }
 
   Print::info("Enter the compress level for packing (By default, the maximum value is used):");
@@ -78,4 +86,16 @@ void Configurator::configCreate()
   Print::info("Enter the number of backups you want to have at the same time (Enter 0 if you do not want the backups to be deleted):");
   m_conf.info.count = input.readLine().toUInt();
   emit configFinished(m_conf.write(m_configName));
+}
+
+void Configurator::createEmptyFile(QString path)
+{
+  QFile file(path);
+
+  if (!file.open(QIODevice::WriteOnly))
+  {
+    Print::warning("Failed to create file: " + path);
+  }
+
+  file.close();
 }

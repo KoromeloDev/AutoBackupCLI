@@ -25,6 +25,7 @@ signals:
 private slots:
   void configRemove();
   void configCreate();
+  void createEmptyFile(QString path);
 };
 
 #endif //CONFIGURATOR_H

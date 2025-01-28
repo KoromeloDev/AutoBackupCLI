@@ -4,7 +4,10 @@
 
 bool ConfFile::read(QString configName)
 {
-  QFile file(configName);
+  QString folder = configName;
+  folder.chop(5);
+  folder += "/";
+  QFile file(folder + configName);
 
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
   {
@@ -33,7 +36,10 @@ bool ConfFile::read(QString configName)
 
 bool ConfFile::write(QString configName)
 {
-  QFile file(configName);
+  QString folder = configName;
+  folder.chop(5);
+  folder += "/";
+  QFile file(folder + configName);
 
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
   {
