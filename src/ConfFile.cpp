@@ -4,12 +4,9 @@
 
 bool ConfFile::read(QString configName)
 {
-  QString folder = configName;
-  folder.chop(5);
-  folder += "/";
-  QFile file(folder + configName);
+  QFile file(configName);
 
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     return false;
   }

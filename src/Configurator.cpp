@@ -56,9 +56,9 @@ void Configurator::configCreate()
   if (!m_conf.info.include.isEmpty() || !QFile::exists(m_conf.info.include))
   {
     Print::warning("File is not exist: " + m_conf.info.include);
-    QString path = folder + "/" + folder + ".include";
-    createEmptyFile(path);
-    m_conf.info.include = path;
+    const QString name = m_configName + ".include";
+    createEmptyFile(name);
+    m_conf.info.include = name;
   }
 
   Print::info("Enter the exclude file path for search (By default creates a file in the conifguration folder):");
@@ -67,9 +67,9 @@ void Configurator::configCreate()
   if (!m_conf.info.exclude.isEmpty() || !QFile::exists(m_conf.info.exclude))
   {
     Print::warning("File is not exist: " + m_conf.info.exclude);
-    QString path = folder + "/" + folder + ".exclude";
-    createEmptyFile(path);
-    m_conf.info.exclude = path;
+    const QString name = m_configName + ".exclude";
+    createEmptyFile(name);
+    m_conf.info.exclude = name;
   }
 
   Print::info("Enter the compress level for packing (By default, the maximum value is used):");

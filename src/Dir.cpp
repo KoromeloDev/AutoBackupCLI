@@ -1,12 +1,9 @@
 #include "Dir.h"
 #include "Print.h"
 
-void Dir::setPath()
+void Dir::setPath(QString name)
 {
-  QString path;
-  path.append(QDir::homePath());
-  path.append("/.config/");
-  path.append(PROJECT_NAME);
+  const QString path = QDir::homePath() + "/.config/" + PROJECT_NAME + "/" + name;
 
   if(!QDir(path).exists() && !QDir(path).mkdir(path))
   {

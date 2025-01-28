@@ -6,7 +6,7 @@
 class Dir
 {
 public:
-  static void setPath();
+  static void setPath(QString name = {});
   static void create(QString name);
 
 };

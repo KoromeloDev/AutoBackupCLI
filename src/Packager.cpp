@@ -46,6 +46,7 @@ void Packager::pack(QString name)
   const QString command = QString("gzip -%1 \"%2\"").arg(QString::number(m_level), archiveName);
   process.startCommand(command);
   process.waitForFinished();
+
   emit packageFinished(!process.exitCode(), archiveName + ".gz");
 }
 
@@ -61,10 +62,10 @@ bool Packager::remove(QString path)
 
   if (file.remove())
   {
-    Print::success("The file has been successfully deleted: " + path);
+    Print::info("The file has been successfully deleted: " + path);
     return true;
   }
 
-  Print::error("Failed to delete the file: " + path);
+  Print::warning("Failed to delete the file: " + path);
   return false;
 }

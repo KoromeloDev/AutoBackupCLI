@@ -2,6 +2,7 @@
 #include "Print.h"
 
 #include <QCoreApplication>
+#include "Dir.h"
 
 Runner::Runner(QObject *parent) : QObject(parent)
 {
@@ -36,18 +37,24 @@ void Runner::start()
   {
     config();
   }
+  else if (command == "run")
+  {
+    run();
+  }
   else
   {
     Print::error("Unknown command");
   }
 }
 
-void Runner::search()
+void Runner::search(QString includeFile, QString excludeFile)
 {
-  QString includeFile = QCoreApplication::arguments().at(2);
-  QString excludeFile = nullptr;
+  if (includeFile == nullptr)
+  {
+    includeFile = QCoreApplication::arguments().at(2);
+  }
 
-  if (QCoreApplication::arguments().count() >= 4)
+  if (excludeFile == nullptr && QCoreApplication::arguments().count() >= 4)
   {
     excludeFile = QCoreApplication::arguments().at(3);
   }
@@ -57,22 +64,23 @@ void Runner::search()
   m_search->search();
 }
 
-void Runner::pack(QStringList files)
+void Runner::pack(QStringList files, quint8 level)
 {
-  quint8 level = QCoreApplication::arguments().at(2).toUInt();
+  if (level == 0)
+  {
+    level = QCoreApplication::arguments().at(2).toUInt();
+  }
 
   if (files.isEmpty())
   {
-    if (QCoreApplication::arguments().count() >= 4)
-    {
-      for (quint8 i = 3; i < QCoreApplication::arguments().count(); ++i)
-      {
-        files += QCoreApplication::arguments().at(i);
-      }
-    }
-    else
+    if (QCoreApplication::arguments().count() < 4)
     {
       Print::error("No required parameter: FILES");
+    }
+
+    for (quint8 i = 3; i < QCoreApplication::arguments().count(); ++i)
+    {
+      files += QCoreApplication::arguments().at(i);
     }
   }
 
@@ -81,23 +89,34 @@ void Runner::pack(QStringList files)
   m_packager->pack("Config ");
 }
 
-void Runner::load()
+void Runner::load(QString configName, QString file, QString path)
 {
-  if (QCoreApplication::arguments().count() == 3)
+  if (configName == nullptr)
+  {
+    configName = QCoreApplication::arguments().at(2);
+  }
+
+  if (file == nullptr && QCoreApplication::arguments().count() == 3)
   {
     Print::error("No required parameter: FILES");
   }
 
-  const QString configName = QCoreApplication::arguments().at(2);
-  const QString file = QCoreApplication::arguments().at(3);
-  QString path = "/";
-
-  if (QCoreApplication::arguments().count() >= 5)
+  if (file == nullptr)
   {
-    path = QCoreApplication::arguments().at(4);
+    file = QCoreApplication::arguments().at(3);
   }
 
-  m_loader = m_loader.create(this, configName, file , path);
+  if (path == nullptr)
+  {
+    path = "/";
+
+    if (QCoreApplication::arguments().count() >= 5)
+    {
+      path = QCoreApplication::arguments().at(4);
+    }
+  }
+
+  m_loader = m_loader.create(this, configName, file, path);
   connect(m_loader.get(), &Loader::loadingFinished, this, &Runner::loadingFinished);
   m_loader->load();
 }
@@ -110,6 +129,27 @@ void Runner::config()
   m_configurator->config();
 }
 
+void Runner::run()
+{
+  const QString configName = QCoreApplication::arguments().at(2);
+
+  if(!QDir(configName).exists())
+  {
+    Print::error("The folder doesn't exist: " + configName);
+  }
+
+  if (!QFile::exists(configName + "/" + configName + ".json"))
+  {
+    Print::error("The config doesn't exist: " + configName);
+  }
+
+  Dir::setPath(configName);
+  m_config = m_config.create();
+  m_config->read(configName + ".json");
+  m_isWaiting = true;
+  search(m_config->info.include, m_config->info.exclude);
+}
+
 void Runner::searchFinished(bool success, QStringList files)
 {
   if (success)
@@ -119,7 +159,13 @@ void Runner::searchFinished(bool success, QStringList files)
       Print::info("Find: " + file);
     }
 
-    Print::success("Done!");
+    if (m_isWaiting)
+    {
+      Print::info("Search is done!");
+      afterSearch(files);
+    }
+
+    Print::success("Search is done!");
   }
 
   Print::error("Not find!");
@@ -130,7 +176,14 @@ void Runner::packageFinished(bool success, QString path)
   if (success)
   {
     Print::info("Path: " + path);
-    Print::success("Done!");
+
+    if (m_isWaiting)
+    {
+      Print::info("Package is done!");
+      afterPacking(path);
+    }
+
+    Print::success("Packing is done!");
   }
 
   Print::error("Error packing!");
@@ -140,9 +193,20 @@ void Runner::loadingFinished(bool success)
 {
   if (success)
   {
+    if (m_isWaiting)
+    {
+      Print::info("Loaded!");
+      runFinished(true);
+    }
+
     Print::success("Loaded!");
   }
 
+  if (m_isWaiting)
+  {
+    Print::warning("Error loading!");
+    runFinished(false);
+  }
   Print::error("Error loading!");
 }
 
@@ -154,4 +218,27 @@ void Runner::configFinished(bool success)
   }
 
   Print::error("Error creating configuration!");
+}
+
+void Runner::runFinished(bool success)
+{
+  m_packager->remove(m_removePath);
+
+  if (success)
+  {
+    Print::success("All task done!");
+  }
+
+  Print::error("Error!");
+}
+
+void Runner::afterSearch(QStringList files)
+{
+  pack(files, m_config->info.compress);
+}
+
+void Runner::afterPacking(QString path)
+{
+  m_removePath = path;
+  load(m_config->info.service, path, m_config->info.destination);
 }
