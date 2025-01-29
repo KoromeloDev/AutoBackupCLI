@@ -23,7 +23,7 @@ signals:
   void configFinished(bool success);
 
 private slots:
-  void configRemove();
+  void configRemove(QString folder);
   void configCreate();
   void createEmptyFile(QString path);
 };

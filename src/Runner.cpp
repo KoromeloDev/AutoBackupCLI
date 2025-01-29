@@ -179,7 +179,7 @@ void Runner::packageFinished(bool success, QString path)
 
     if (m_isWaiting)
     {
-      Print::info("Package is done!");
+      Print::system("Package is done!");
       afterPacking(path);
     }
 
@@ -195,7 +195,7 @@ void Runner::loadingFinished(bool success)
   {
     if (m_isWaiting)
     {
-      Print::info("Loaded!");
+      Print::system("Loaded!");
       runFinished(true);
     }
 
@@ -214,7 +214,7 @@ void Runner::configFinished(bool success)
 {
   if (success)
   {
-    Print::success("Done!");
+    Print::success("Config created!");
   }
 
   Print::error("Error creating configuration!");

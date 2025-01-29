@@ -62,7 +62,7 @@ bool Packager::remove(QString path)
 
   if (file.remove())
   {
-    Print::info("The file has been successfully deleted: " + path);
+    Print::system("The file has been successfully deleted: " + path);
     return true;
   }
 

@@ -44,7 +44,7 @@ void Search::search()
 
   for (const auto &path : pathList)
   {
-    Print::info("Include path: " + path);
+    Print::system("Include path: " + path);
     QDirIterator it(path, QDir::AllEntries | QDir::Hidden | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
 
     while (it.hasNext())
@@ -75,7 +75,7 @@ QStringList Search::filter(const QStringList &inputData)
       if (!ignore.isEmpty())
       {
         ignorePattern += ignore + "|";
-        Print::info("Exclude path: " + QString::fromUtf8(ignore));
+        Print::system("Exclude path: " + QString::fromUtf8(ignore));
       }
     }
 
