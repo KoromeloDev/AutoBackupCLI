@@ -114,7 +114,7 @@ void Configurator::configCreate()
   file.write(command.toUtf8());
   file.close();
   QStringList args;
-  args << QDir::currentPath() + "/" + path;
+  args << QDir::currentPath() + "/" + path + " run " + folder;
   process.start("crontab", args);
   process.waitForFinished();
 
