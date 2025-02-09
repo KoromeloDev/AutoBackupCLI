@@ -19,15 +19,15 @@ private:
   QString m_configName;
   ConfFile m_conf;
 
-  void configRemove(QString folder);
+  void configRemove();
   void configCreate();
   void createEmptyFile(QString path);
   void setService(QTextStream &input);
   void setDestination(QTextStream &input);
-  void setInclude(QTextStream &input, QString &folder);
-  void setExclude(QTextStream &input, QString &folder);
+  void setInclude(QTextStream &input);
+  void setExclude(QTextStream &input);
   void setCompress(QTextStream &input);
-  void setFrequency(QTextStream &input, QString &folder);
+  void setFrequency(QTextStream &input);
   void setCount(QTextStream &input);
 
 signals:
