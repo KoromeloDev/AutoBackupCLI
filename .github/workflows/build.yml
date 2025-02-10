@@ -15,7 +15,6 @@ jobs:
         host: linux
         target: desktop
         arch: gcc_64
-        modules: all
         cache: true
         cache-key-prefix: Qt
     - name: Get repository code
