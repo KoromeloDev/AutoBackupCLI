@@ -43,6 +43,7 @@ private slots:
   void runFinished(bool success);
   void afterSearch(QStringList files);
   void afterPacking(QString path);
+  void afterLoading();
 };
 
 #endif //RUNNER_H

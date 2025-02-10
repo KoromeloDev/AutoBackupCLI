@@ -2,6 +2,9 @@
 #include "Print.h"
 
 #include <QCoreApplication>
+#include <QProcess>
+#include <QJsonArray>
+
 #include "Dir.h"
 
 Runner::Runner(QObject *parent) : QObject(parent)
@@ -147,7 +150,8 @@ void Runner::run()
   m_config = m_config.create();
   m_config->read(configName + ".json");
   m_isWaiting = true;
-  search(m_config->info.include, m_config->info.exclude);
+  afterLoading();
+  // search(m_config->info.include, m_config->info.exclude);
 }
 
 void Runner::searchFinished(bool success, QStringList files)
@@ -196,17 +200,12 @@ void Runner::loadingFinished(bool success)
     if (m_isWaiting)
     {
       Print::system("Loaded!");
-      runFinished(true);
+      afterLoading();
     }
 
     Print::success("Loaded!");
   }
 
-  if (m_isWaiting)
-  {
-    Print::warning("Error loading!");
-    runFinished(false);
-  }
   Print::error("Error loading!");
 }
 
@@ -222,8 +221,6 @@ void Runner::configFinished(bool success)
 
 void Runner::runFinished(bool success)
 {
-  m_packager->remove(m_removePath);
-
   if (success)
   {
     Print::success("All task done!");
@@ -239,6 +236,71 @@ void Runner::afterSearch(QStringList files)
 
 void Runner::afterPacking(QString path)
 {
+  // m_packager->remove(m_removePath);
   m_removePath = path;
   load(m_config->info.service, path, m_config->info.destination);
+}
+
+void Runner::afterLoading()
+{
+  const quint8 count = m_config->info.count;
+  QProcess process;
+  QStringList args;
+  QString path = m_config->info.service + ":" + m_config->info.destination;
+  args << "lsjson" << path;
+  process.start("rclone", args);
+  process.waitForFinished();
+  const QByteArray jsonData = process.readAllStandardOutput();
+  const QJsonDocument document = QJsonDocument::fromJson(jsonData);
+  const QJsonArray array = document.array();
+  struct FileInfo
+  {
+    QString name;
+    QDate date;
+  };
+  QVector<FileInfo> files;
+
+  for (const QJsonValue &value : array)
+  {
+    const QJsonObject object = value.toObject();
+    const QString mimeType = object["MimeType"].toString();
+
+    if (mimeType != "application/gzip")
+    {
+      continue;
+    }
+
+    FileInfo file;
+    file.name = object["Name"].toString();
+    file.date = QDate::fromString(object["ModTime"].toString().first(10), Qt::ISODate);
+    files.append(file);
+  }
+
+  if (count >= files.count() || count == 0)
+  {
+    Print::system("Nothing to delete");
+    runFinished(true);
+  }
+
+  const quint8 needToDelete = files.count() - count;
+  std::ranges::sort(files, [](const FileInfo &a, const FileInfo &b)
+  {
+    return a.date < b.date;
+  });
+
+  for (quint8 i = 0; i < needToDelete; ++i)
+  {
+    Print::info("Deleting: " + files[i].name);
+    args.clear();
+    args << "delete" << path + "/" + files[i].name;
+    process.start("rclone", args);
+    process.waitForFinished();
+
+    if (process.exitCode())
+    {
+      runFinished(false);
+    }
+  }
+
+  runFinished(true);
 }
