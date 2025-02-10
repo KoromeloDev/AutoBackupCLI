@@ -242,13 +242,13 @@ void Runner::afterSearch(QStringList files)
 
 void Runner::afterPacking(QString path)
 {
-  m_packager->remove(m_removePath);
   m_removePath = path;
   load(m_config->info.service, path, m_config->info.destination);
 }
 
 void Runner::afterLoading()
 {
+  m_packager->remove(m_removePath);
   const quint8 count = m_config->info.count;
   QProcess process;
   QStringList args;

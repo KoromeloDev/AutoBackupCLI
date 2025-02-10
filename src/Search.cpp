@@ -3,6 +3,7 @@
 
 #include <QDirIterator>
 #include <QRegularExpressionMatchIterator>
+#include <QFileInfo>
 
 Search::Search(QObject *parent, const QString &includeFile, const QString &excludeFile) : QObject(parent)
 {
@@ -45,19 +46,34 @@ void Search::search()
   for (const auto &path : pathList)
   {
     Print::system("Include path: " + path);
+
+    if (const QFileInfo file(path); file.exists() && file.isFile())
+    {
+      files << path;
+      continue;
+    }
+
     QDirIterator it(path, QDir::AllEntries | QDir::Hidden | QDir::NoSymLinks | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
 
     while (it.hasNext())
     {
-      if (const QString name = it.next(); !name.isEmpty())
+      const QString name = it.next();
+
+      if (name.isEmpty())
       {
-        files << name;
+        continue;
       }
+
+      if (const QFileInfo file(name); file.isDir())
+      {
+        continue;
+      }
+
+      files << name;
     }
   }
 
   files = filter(files);
-
   emit searchFinished(!files.isEmpty(), files);
 }
 
