@@ -89,7 +89,14 @@ void Runner::pack(QStringList files, quint8 level)
 
   m_packager = m_packager.create(this, level, files);
   connect(m_packager.get(), &Packager::packageFinished, this, &Runner::packageFinished);
-  m_packager->pack("Config ");
+  QString name = "Config ";
+
+  if (m_isWaiting)
+  {
+    name = m_configName + " ";
+  }
+
+  m_packager->pack(name);
 }
 
 void Runner::load(QString configName, QString file, QString path)
@@ -134,24 +141,23 @@ void Runner::config()
 
 void Runner::run()
 {
-  const QString configName = QCoreApplication::arguments().at(2);
+  const QString m_configName = QCoreApplication::arguments().at(2);
 
-  if(!QDir(configName).exists())
+  if(!QDir(m_configName).exists())
   {
-    Print::error("The folder doesn't exist: " + configName);
+    Print::error("The folder doesn't exist: " + m_configName);
   }
 
-  if (!QFile::exists(configName + "/" + configName + ".json"))
+  if (!QFile::exists(m_configName + "/" + m_configName + ".json"))
   {
-    Print::error("The config doesn't exist: " + configName);
+    Print::error("The config doesn't exist: " + m_configName);
   }
 
-  Dir::setPath(configName);
+  Dir::setPath(m_configName);
   m_config = m_config.create();
-  m_config->read(configName + ".json");
+  m_config->read(m_configName + ".json");
   m_isWaiting = true;
-  afterLoading();
-  // search(m_config->info.include, m_config->info.exclude);
+  search(m_config->info.include, m_config->info.exclude);
 }
 
 void Runner::searchFinished(bool success, QStringList files)
@@ -236,7 +242,7 @@ void Runner::afterSearch(QStringList files)
 
 void Runner::afterPacking(QString path)
 {
-  // m_packager->remove(m_removePath);
+  m_packager->remove(m_removePath);
   m_removePath = path;
   load(m_config->info.service, path, m_config->info.destination);
 }

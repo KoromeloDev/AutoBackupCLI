@@ -28,6 +28,7 @@ private:
   QSharedPointer<ConfFile> m_config;
   bool m_isWaiting = false;
   QString m_removePath;
+  QString m_configName;
 
   void search(QString includeFile = nullptr, QString excludeFile = nullptr);
   void pack(QStringList files = {}, quint8 level = 0);
