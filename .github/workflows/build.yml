@@ -1,0 +1,35 @@
+name: Build Project
+on: [workflow_dispatch]
+env:
+  QT_VERSION: 6.4.2
+  PROJECT_NAME: AutoBackup
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        aqtversion: '==3.1.19'
+        version: ${{env.QT_VERSION}}
+        host: linux
+        target: desktop
+        arch: gcc_64
+        modules: all
+        cache: true
+        cache-key-prefix: Qt
+    - name: Get repository code
+      uses: actions/checkout@v4.0.0
+    - name: Build
+      uses: ashutoshvarma/action-cmake-build@master
+      with:
+        build-type: MinSizeRel
+    - name: Set maximum level compress
+      run: export GZIP=-9
+    - name: Compress folder
+      run: tar -czvf ${{env.PROJECT_NAME}}-Linux.tar.gz -C ${{runner.workspace}}/build/ ${{env.PROJECT_NAME}}
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Linux-build
+        path: ${{env.PROJECT_NAME}}-Linux.tar.gz
