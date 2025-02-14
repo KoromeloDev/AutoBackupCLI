@@ -141,7 +141,7 @@ void Runner::config()
 
 void Runner::run()
 {
-  const QString m_configName = QCoreApplication::arguments().at(2);
+  m_configName = QCoreApplication::arguments().at(2);
 
   if(!QDir(m_configName).exists())
   {
