@@ -10,10 +10,7 @@ Configurator::Configurator(QObject *parent, QString configName) : QObject(parent
   m_configName = configName;
 }
 
-Configurator::~Configurator()
-{
-
-}
+Configurator::~Configurator() = default;
 
 void Configurator::config()
 {

@@ -11,10 +11,7 @@ Loader::Loader(QObject *parent, QString configName, QString file, QString path) 
   m_path = path;
 }
 
-Loader::~Loader()
-{
-
-}
+Loader::~Loader() = default;
 
 void Loader::load()
 {

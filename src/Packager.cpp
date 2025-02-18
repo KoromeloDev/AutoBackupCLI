@@ -23,10 +23,7 @@ Packager::Packager(QObject *parent, quint8 level, QStringList files) : QObject(p
   }
 }
 
-Packager::~Packager()
-{
-
-}
+Packager::~Packager() = default;
 
 void Packager::pack(QString name)
 {

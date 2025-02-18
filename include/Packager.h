@@ -20,7 +20,6 @@ private:
 
 signals:
   void packageFinished(bool success, QString path);
-
 };
 
 #endif //PACKAGER_H

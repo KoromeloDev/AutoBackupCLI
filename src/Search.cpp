@@ -15,10 +15,7 @@ Search::Search(QObject *parent, const QString &includeFile, const QString &exclu
   m_includeFile.setFileName(includeFile);
 }
 
-Search::~Search()
-{
-
-}
+Search::~Search() = default;
 
 void Search::search()
 {

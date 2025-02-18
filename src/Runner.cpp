@@ -7,15 +7,9 @@
 
 #include "Dir.h"
 
-Runner::Runner(QObject *parent) : QObject(parent)
-{
+Runner::Runner(QObject *parent) : QObject(parent) {}
 
-}
-
-Runner::~Runner()
-{
-
-}
+Runner::~Runner() = default;
 
 void Runner::start()
 {

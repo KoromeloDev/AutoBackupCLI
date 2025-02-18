@@ -20,7 +20,6 @@ private:
 
 signals:
   void loadingFinished(bool success);
-
 };
 
 #endif //LOADER_H
